@@ -1,0 +1,9 @@
+# Служебная папка Visual Studio
+.vs/
+.vscode/
+
+# Результаты сборки MSVC
+*.exe
+*.obj
+*.ilk
+*.pdb
