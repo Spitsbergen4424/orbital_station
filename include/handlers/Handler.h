@@ -64,6 +64,15 @@ private:
     StationFacade& facade_;
 };
 
+class DamageHandler final : public Handler {
+public:
+    explicit DamageHandler(StationFacade& facade);
+protected:
+    bool execute(std::istringstream& args) override;
+private:
+    StationFacade& facade_;
+};
+
 class EnergyHandler final : public Handler {
 public:
     explicit EnergyHandler(StationFacade& facade);

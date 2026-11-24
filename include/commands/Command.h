@@ -60,6 +60,18 @@ private:
     int index_;
 };
 
+class DamageModuleCommand : public Command {
+public:
+    DamageModuleCommand(std::shared_ptr<StationMediator> mediator,
+                        int index);
+
+    void execute() override;
+
+private:
+    std::shared_ptr<StationMediator> mediator_;
+    int index_;
+};
+
 class DistributeEnergyCommand : public Command {
 public:
     DistributeEnergyCommand(std::shared_ptr<StationMediator> mediator,

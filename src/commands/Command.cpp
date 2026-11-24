@@ -32,6 +32,16 @@ void RepairModuleCommand::execute() {
     mediator_->repairModule(index_);
 }
 
+DamageModuleCommand::DamageModuleCommand(
+    std::shared_ptr<StationMediator> mediator,
+    int index
+)
+    : mediator_(mediator), index_(index) {}
+
+void DamageModuleCommand::execute() {
+    mediator_->damageModule(index_);
+}
+
 DistributeEnergyCommand::DistributeEnergyCommand(
     std::shared_ptr<StationMediator> mediator, int index, int percent)
     : mediator_(mediator), index_(index), percent_(percent) {}

@@ -19,7 +19,8 @@ public:
     void deactivateModule(int index);
     void moveModule(int from, int to);
     void repairModule(int index);
-
+    void damageModule(int index, int amount = 20);
+    
     void distributeEnergy(int index, int percent);
     bool requestEnergy(int index, double amount);
 

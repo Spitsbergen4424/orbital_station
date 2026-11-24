@@ -1,7 +1,7 @@
 #include "handlers/Handler.h"
 
 #include "facade/StationFacade.h"
-#include "commands/Command.h"
+
 
 #include <iomanip>
 #include <iostream>
@@ -37,7 +37,7 @@ namespace {
 bool readInt(std::istringstream& stream, int& value) {
     return static_cast<bool>(stream >> value);
 }
-}
+}  // namespace
 
 ActivateHandler::ActivateHandler(StationFacade& facade)
     : Handler("activate"), facade_(facade) {}
@@ -48,10 +48,7 @@ bool ActivateHandler::execute(std::istringstream& args) {
         std::cout << "Использование: activate <индекс>\n";
         return true;
     }
-
-    facade_.executeCommand(
-        std::make_unique<ActivateModuleCommand>(
-            facade_.getMediator(), index));
+    facade_.activateModule(index);
     return true;
 }
 
@@ -64,10 +61,7 @@ bool DeactivateHandler::execute(std::istringstream& args) {
         std::cout << "Использование: deactivate <индекс>\n";
         return true;
     }
-
-    facade_.executeCommand(
-        std::make_unique<DeactivateModuleCommand>(
-            facade_.getMediator(), index));
+    facade_.deactivateModule(index);
     return true;
 }
 
@@ -80,10 +74,7 @@ bool MoveHandler::execute(std::istringstream& args) {
         std::cout << "Использование: move <откуда> <куда>\n";
         return true;
     }
-
-    facade_.executeCommand(
-        std::make_unique<MoveModuleCommand>(
-            facade_.getMediator(), from, to));
+    facade_.moveModule(from, to);
     return true;
 }
 
@@ -96,10 +87,20 @@ bool RepairHandler::execute(std::istringstream& args) {
         std::cout << "Использование: repair <индекс>\n";
         return true;
     }
+    facade_.repairModule(index);
+    return true;
+}
 
-    facade_.executeCommand(
-        std::make_unique<RepairModuleCommand>(
-            facade_.getMediator(), index));
+DamageHandler::DamageHandler(StationFacade& facade)
+    : Handler("damage"), facade_(facade) {}
+
+bool DamageHandler::execute(std::istringstream& args) {
+    int index;
+    if (!readInt(args, index)) {
+        std::cout << "Использование: damage <индекс>\n";
+        return true;
+    }
+    facade_.damageModule(index);
     return true;
 }
 
@@ -112,10 +113,7 @@ bool EnergyHandler::execute(std::istringstream& args) {
         std::cout << "Использование: energy <индекс> <процент>\n";
         return true;
     }
-
-    facade_.executeCommand(
-        std::make_unique<DistributeEnergyCommand>(
-            facade_.getMediator(), index, percent));
+    facade_.distributeEnergy(index, percent);
     return true;
 }
 
@@ -128,10 +126,7 @@ bool ResearchHandler::execute(std::istringstream& args) {
         std::cout << "Использование: research <индекс>\n";
         return true;
     }
-
-    facade_.executeCommand(
-        std::make_unique<StartResearchCommand>(
-            facade_.getMediator(), index));
+    facade_.startResearch(index);
     return true;
 }
 
@@ -145,10 +140,7 @@ bool BuildHandler::execute(std::istringstream& args) {
         std::cout << "Использование: build <тип> <имя>\n";
         return true;
     }
-
-    facade_.executeCommand(
-        std::make_unique<BuildModuleCommand>(
-            facade_.getMediator(), type, name));
+    facade_.buildModule(type, name);
     return true;
 }
 
@@ -158,10 +150,7 @@ StatusHandler::StatusHandler(StationFacade& facade)
 bool StatusHandler::execute(std::istringstream& args) {
     int index = -1;
     args >> index;   // необязательный аргумент: если нет — остаётся -1
-
-    facade_.executeCommand(
-        std::make_unique<StatusCommand>(
-            facade_.getMediator(), index));
+    facade_.getStatus(index);
     return true;
 }
 
@@ -175,6 +164,7 @@ bool HelpHandler::execute(std::istringstream&) {
         << "  deactivate <индекс>\n"
         << "  move <откуда> <куда>\n"
         << "  repair <индекс>\n"
+        << "  damage <индекс>\n"
         << "  energy <индекс> <процент>\n"
         << "  research <индекс>\n"
         << "  build <тип> <имя>\n"
@@ -195,11 +185,11 @@ bool ExitHandler::execute(std::istringstream&) {
 std::unique_ptr<Handler> createHandlerChain(StationFacade& facade) {
     auto head = std::make_unique<ActivateHandler>(facade);
 
-    // setNext возвращает указатель на только что добавленный узел,
-    // поэтому цепочку можно собирать в одну строку.
+    
     head->setNext(std::make_unique<DeactivateHandler>(facade))
         ->setNext(std::make_unique<MoveHandler>(facade))
         ->setNext(std::make_unique<RepairHandler>(facade))
+        ->setNext(std::make_unique<DamageHandler>(facade))
         ->setNext(std::make_unique<EnergyHandler>(facade))
         ->setNext(std::make_unique<ResearchHandler>(facade))
         ->setNext(std::make_unique<BuildHandler>(facade))

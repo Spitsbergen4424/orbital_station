@@ -248,3 +248,18 @@ void StationMediator::getStatus(int index) const {
 
     it->print();
 }
+
+void StationMediator::damageModule(int index, int amount) {
+    Module* module = getModule(index);
+
+    if (!module || amount <= 0) {
+        std::cout << "Неверные параметры повреждения.\n";
+        return;
+    }
+
+    module->damage(amount);
+
+    center_.flushPendingRemovals();
+
+    std::cout << "Модуль получил повреждения.\n";
+}
